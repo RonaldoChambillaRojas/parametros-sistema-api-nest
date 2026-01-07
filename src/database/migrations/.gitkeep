@@ -1,0 +1,10 @@
+# Este archivo mantiene la carpeta de migraciones en git
+
+# Las migraciones de TypeORM se generan automáticamente con:
+# npm run migration:generate -- src/database/migrations/NombreDeLaMigracion
+
+# Las migraciones se ejecutan con:
+# npm run migration:run
+
+# Para revertir la última migración:
+# npm run migration:revert
