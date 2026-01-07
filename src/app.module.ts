@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { validate } from './config/env.validation';
-import { ParametrosSistemaModule } from './parametros-sistema/parametros-sistema.module';
 import databaseConfig from './config/database.config';
+import { ParametrosSistemaModule } from './parametros-sistema/parametros-sistema.module';
 
 @Module({
   imports: [
@@ -14,8 +14,13 @@ import databaseConfig from './config/database.config';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) =>
-        configService.get<TypeOrmModuleOptions>('database')!,
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = configService.get('database');
+        if (!dbConfig) {
+          throw new Error('Database configuration not found');
+        }
+        return dbConfig;
+      },
       inject: [ConfigService],
     }),
     ParametrosSistemaModule,

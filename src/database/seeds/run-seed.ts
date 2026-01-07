@@ -1,8 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-
-// Importar seeds aquí
-// import { UserSeeder } from './user.seeder';
+import { ParametroSistemaSeeder } from './parametro-sistema.seeder';
 
 dotenv.config();
 
@@ -19,17 +17,19 @@ const dataSource = new DataSource({
 
 async function runSeeds() {
   try {
+    console.log('🔌 Conectando a la base de datos...');
     await dataSource.initialize();
-    console.log('Database connection established');
+    console.log('✅ Conexión establecida\n');
 
-    // Ejecutar seeds aquí
-    // await new UserSeeder().run(dataSource);
-    
-    console.log('Seeds executed successfully');
-    
+    console.log('🌱 Ejecutando seeds...\n');
+    await new ParametroSistemaSeeder().run(dataSource);
+
+    console.log('\n🎉 Seeds ejecutados exitosamente');
     await dataSource.destroy();
+    process.exit(0);
   } catch (error) {
-    console.error('Error running seeds:', error);
+    console.error('❌ Error ejecutando seeds:', error);
+    await dataSource.destroy();
     process.exit(1);
   }
 }
