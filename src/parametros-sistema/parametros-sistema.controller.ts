@@ -9,12 +9,15 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ParametrosSistemaService } from './parametros-sistema.service';
 import { CreateParametroSistemaDto } from './dto/create-parametros-sistema.dto';
 import { UpdateParametroSistemaDto } from './dto/update-parametros-sistema.dto';
-
+import { TenantInterceptor } from 'src/tenant/tenant.interceptor';
+import { TenantId } from 'src/tenant/tenant.decorator';
 @Controller('parametros-sistema')
+@UseInterceptors(TenantInterceptor)
 export class ParametrosSistemaController {
   constructor(
     private readonly parametrosSistemaService: ParametrosSistemaService,
@@ -22,40 +25,52 @@ export class ParametrosSistemaController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createParametroSistemaDto: CreateParametroSistemaDto) {
-    return this.parametrosSistemaService.create(createParametroSistemaDto);
+  create(
+    @TenantId() ruc: string,
+    @Body() createParametroSistemaDto: CreateParametroSistemaDto,
+  ) {
+    return this.parametrosSistemaService.create(ruc, createParametroSistemaDto);
   }
 
   @Get()
-  findAll() {
-    return this.parametrosSistemaService.findAll();
+  findAll(@TenantId() ruc: string) {
+    return this.parametrosSistemaService.findAll(ruc);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.parametrosSistemaService.findOne(id);
+  findOne(@TenantId() ruc: string, @Param('id', ParseIntPipe) id: number) {
+    return this.parametrosSistemaService.findOne(ruc, id);
   }
 
   @Patch(':id')
   update(
+    @TenantId() ruc: string,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateParametroSistemaDto: UpdateParametroSistemaDto,
   ) {
-    return this.parametrosSistemaService.update(id, updateParametroSistemaDto);
+    return this.parametrosSistemaService.update(
+      ruc,
+      id,
+      updateParametroSistemaDto,
+    );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.parametrosSistemaService.remove(id);
+  remove(@TenantId() ruc: string, @Param('id', ParseIntPipe) id: number) {
+    return this.parametrosSistemaService.remove(ruc, id);
   }
 
-  // Endpoint adicional para soft delete
   @Patch(':id/disable')
   softRemove(
+    @TenantId() ruc: string,
     @Param('id', ParseIntPipe) id: number,
     @Body('usuarioModificacion') usuarioModificacion: string,
   ) {
-    return this.parametrosSistemaService.softRemove(id, usuarioModificacion);
+    return this.parametrosSistemaService.softRemove(
+      ruc,
+      id,
+      usuarioModificacion,
+    );
   }
 }

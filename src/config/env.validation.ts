@@ -41,9 +41,6 @@ class EnvironmentVariables {
   @IsString()
   DB_PASSWORD: string;
 
-  @IsString()
-  DB_DATABASE: string;
-
   @IsBoolean()
   DB_SYNCHRONIZE: boolean;
 
@@ -52,6 +49,9 @@ class EnvironmentVariables {
 
   @IsString()
   CORS_ORIGIN: string;
+
+  @IsString()
+  TENANTS_ALLOWED: string;
 }
 
 export function validate(config: Record<string, unknown>) {

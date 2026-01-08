@@ -1,47 +1,56 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ParametroSistema } from './entities/parametros-sistema.entity';
-import { CreateParametroSistemaDto } from './dto/create-parametros-sistema.dto';
 import { UpdateParametroSistemaDto } from './dto/update-parametros-sistema.dto';
-
+import { TenantService } from '../tenant/tenant.service';
+import { CreateParametroSistemaDto } from './dto/create-parametros-sistema.dto';
 @Injectable()
 export class ParametrosSistemaService {
-  constructor(
-    @InjectRepository(ParametroSistema)
-    private parametrosSistemaRepository: Repository<ParametroSistema>,
-  ) {}
+  constructor(private tenantService: TenantService) {}
 
-  async create(
-    createParametroSistemaDto: CreateParametroSistemaDto,
-  ): Promise<ParametroSistema> {
-    const parametro = this.parametrosSistemaRepository.create({
-      ...createParametroSistemaDto,
-      indicadorEstado: createParametroSistemaDto.indicadorEstado || 'A',
-      estadoSincronizacion: 'P',
-    });
-
-    return this.parametrosSistemaRepository.save(parametro);
+  /**
+   * Obtiene el repositorio para el tenant específico
+   */
+  private async getRepository(ruc: string): Promise<Repository<ParametroSistema>> {
+    const connection = await this.tenantService.getTenantConnection(ruc);
+    return connection.getRepository(ParametroSistema);
   }
 
-  async findAll(): Promise<ParametroSistema[]> {
-    return this.parametrosSistemaRepository.find({
+  async create(
+    ruc: string,
+    createParametroSistemaDto: CreateParametroSistemaDto,
+  ): Promise<ParametroSistema> {
+    const repository = await this.getRepository(ruc);
+    
+    const parametro = repository.create({
+      ...createParametroSistemaDto,
+      indicadorEstado: createParametroSistemaDto.indicadorEstado || 'A',
+      estadoSincronizacion: '0',
+      fechaRegistro: new Date(),
+    });
+
+    return repository.save(parametro);
+  }
+
+  async findAll(ruc: string): Promise<ParametroSistema[]> {
+    const repository = await this.getRepository(ruc);
+    return repository.find({
       order: { idParametroSistema: 'ASC' },
     });
   }
 
-  async findOne(id: number): Promise<ParametroSistema> {
-    const parametro = await this.parametrosSistemaRepository.findOne({
+  async findOne(ruc: string, id: number): Promise<ParametroSistema> {
+    const repository = await this.getRepository(ruc);
+    const parametro = await repository.findOne({
       where: { idParametroSistema: id },
     });
 
     if (!parametro) {
       throw new NotFoundException(
-        `Parámetro con ID ${id} no fue encontrado`,
+        `Parámetro con ID ${id} no fue encontrado en la base de datos del RUC ${ruc}`,
       );
     }
 
@@ -49,12 +58,13 @@ export class ParametrosSistemaService {
   }
 
   async update(
+    ruc: string,
     id: number,
     updateParametroSistemaDto: UpdateParametroSistemaDto,
   ): Promise<ParametroSistema> {
-    const parametro = await this.findOne(id);
+    const repository = await this.getRepository(ruc);
+    const parametro = await this.findOne(ruc, id);
 
-    // Solo actualizar los campos permitidos
     if (updateParametroSistemaDto.nombreParametroSistema !== undefined) {
       parametro.nombreParametroSistema =
         updateParametroSistemaDto.nombreParametroSistema;
@@ -66,10 +76,8 @@ export class ParametrosSistemaService {
     }
 
     if (updateParametroSistemaDto.idGrupoParametro !== undefined) {
-        parametro.idGrupoParametro = updateParametroSistemaDto.idGrupoParametro === null 
-    ? null 
-    : updateParametroSistemaDto.idGrupoParametro;
-}
+      parametro.idGrupoParametro = updateParametroSistemaDto.idGrupoParametro;
+    }
 
     if (updateParametroSistemaDto.indicadorEstado !== undefined) {
       parametro.indicadorEstado = updateParametroSistemaDto.indicadorEstado;
@@ -77,23 +85,31 @@ export class ParametrosSistemaService {
 
     parametro.usuarioModificacion =
       updateParametroSistemaDto.usuarioModificacion;
-    parametro.estadoSincronizacion = 'P';
+    parametro.fechaModificacion = new Date();
+    parametro.estadoSincronizacion = '0';
 
-    return this.parametrosSistemaRepository.save(parametro);
+    return repository.save(parametro);
   }
 
-  async remove(id: number): Promise<void> {
-    const parametro = await this.findOne(id);
-    await this.parametrosSistemaRepository.remove(parametro);
+  async remove(ruc: string, id: number): Promise<void> {
+    const repository = await this.getRepository(ruc);
+    const parametro = await this.findOne(ruc, id);
+    await repository.remove(parametro);
   }
 
-  // Método adicional para soft delete (cambiar estado a 'I')
-  async softRemove(id: number, usuarioModificacion: string): Promise<ParametroSistema> {
-    const parametro = await this.findOne(id);
+  async softRemove(
+    ruc: string,
+    id: number,
+    usuarioModificacion: string,
+  ): Promise<ParametroSistema> {
+    const repository = await this.getRepository(ruc);
+    const parametro = await this.findOne(ruc, id);
+    
     parametro.indicadorEstado = 'I';
     parametro.usuarioModificacion = usuarioModificacion;
-    parametro.estadoSincronizacion = 'P';
-    
-    return this.parametrosSistemaRepository.save(parametro);
+    parametro.fechaModificacion = new Date();
+    parametro.estadoSincronizacion = '0';
+
+    return repository.save(parametro);
   }
 }

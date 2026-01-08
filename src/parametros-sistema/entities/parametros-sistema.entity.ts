@@ -6,52 +6,51 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('parametros_sistema')
+@Entity('parametrosistema')
 export class ParametroSistema {
-  @PrimaryGeneratedColumn({ name: 'id_parametro_sistema' })
+  @PrimaryGeneratedColumn({ name: 'IdParametroSistema' })
   idParametroSistema: number;
 
-  @Column({ name: 'nombre_parametro_sistema', length: 100 })
+  @Column({ name: 'NombreParametroSistema', type: 'varchar', length: 250 })
   nombreParametroSistema: string;
 
-  @Column({ name: 'valor_parametro_sistema', type: 'text' })
+  @Column({ name: 'ValorParametroSistema', type: 'varchar', length: 250 })
   valorParametroSistema: string;
 
-  @Column({ name: 'id_grupo_parametro', type: 'int', nullable: true })
+  @Column({ name: 'IdGrupoParametro', type: 'int', nullable: true })
   idGrupoParametro: number | null;
 
-  @Column({ name: 'id_entidad_sistema', type: 'int' })
+  @Column({ name: 'IdEntidadSistema', type: 'int' })
   idEntidadSistema: number;
 
   @Column({
-    name: 'indicador_estado',
-    type: 'char',
+    name: 'IndicadorEstado',
+    type: 'varchar',
     length: 1,
-    default: 'A',
   })
   indicadorEstado: string;
 
-  @Column({ name: 'usuario_registro', length: 50 })
+  @Column({ name: 'UsuarioRegistro', type: 'varchar', length: 50 })
   usuarioRegistro: string;
 
-  @CreateDateColumn({ name: 'fecha_registro', type: 'datetime' })
+  @Column({ name: 'FechaRegistro', type: 'datetime' })
   fechaRegistro: Date;
 
-  @Column({ name: 'usuario_modificacion', length: 50, nullable: true })
-  usuarioModificacion: string;
+  @Column({ name: 'UsuarioModificacion', type: 'varchar', length: 50, nullable: true })
+  usuarioModificacion: string | null;
 
-  @UpdateDateColumn({
-    name: 'fecha_modificacion',
+  @Column({
+    name: 'FechaModificacion',
     type: 'datetime',
     nullable: true,
   })
-  fechaModificacion: Date;
+  fechaModificacion: Date | null;
 
   @Column({
-    name: 'estado_sincronizacion',
+    name: 'EstadoSincronizacion',
     type: 'char',
     length: 1,
-    default: 'P',
+    default: '0',
   })
   estadoSincronizacion: string;
 }
