@@ -18,12 +18,12 @@ export class TenantInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     
-    // Extraer RUC del header
-    const tenantId = request.headers['x-tenant-id'];
+    // Extraer RUC del header (ahora se llama 'ruc' en lugar de 'x-tenant-id')
+    const tenantId = request.headers['ruc'];
 
     if (!tenantId) {
       throw new BadRequestException(
-        'Header "X-Tenant-Id" es requerido. Debe contener el RUC del cliente.',
+        'Header "RUC" es requerido. Debe contener el RUC del cliente.',
       );
     }
 

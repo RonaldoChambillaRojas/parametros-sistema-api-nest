@@ -42,6 +42,11 @@ export class ParametrosSistemaController {
     return this.parametrosSistemaService.findOne(ruc, id);
   }
 
+  @Get('deleted/all')
+  findAllDeleted(@TenantId() ruc: string) {
+    return this.parametrosSistemaService.findAllDeleted(ruc);
+  }
+
   @Patch(':id')
   update(
     @TenantId() ruc: string,

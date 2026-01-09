@@ -2,11 +2,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { ParametroSistema } from './entities/parametros-sistema.entity';
 import { UpdateParametroSistemaDto } from './dto/update-parametros-sistema.dto';
 import { TenantService } from '../tenant/tenant.service';
 import { CreateParametroSistemaDto } from './dto/create-parametros-sistema.dto';
+
 @Injectable()
 export class ParametrosSistemaService {
   constructor(private tenantService: TenantService) {}
@@ -38,6 +39,9 @@ export class ParametrosSistemaService {
   async findAll(ruc: string): Promise<ParametroSistema[]> {
     const repository = await this.getRepository(ruc);
     return repository.find({
+      where: {
+        indicadorEstado: Not('E'), // Excluir registros eliminados
+      },
       order: { idParametroSistema: 'ASC' },
     });
   }
@@ -45,12 +49,15 @@ export class ParametrosSistemaService {
   async findOne(ruc: string, id: number): Promise<ParametroSistema> {
     const repository = await this.getRepository(ruc);
     const parametro = await repository.findOne({
-      where: { idParametroSistema: id },
+      where: { 
+        idParametroSistema: id,
+        indicadorEstado: Not('E'), // Excluir registros eliminados
+      },
     });
 
     if (!parametro) {
       throw new NotFoundException(
-        `Parámetro con ID ${id} no fue encontrado en la base de datos del RUC ${ruc}`,
+        `Parámetro con ID ${id} no fue encontrado o está eliminado en la base de datos del RUC ${ruc}`,
       );
     }
 
@@ -105,11 +112,21 @@ export class ParametrosSistemaService {
     const repository = await this.getRepository(ruc);
     const parametro = await this.findOne(ruc, id);
     
-    parametro.indicadorEstado = 'I';
+    parametro.indicadorEstado = 'E';
     parametro.usuarioModificacion = usuarioModificacion;
     parametro.fechaModificacion = new Date();
     parametro.estadoSincronizacion = '0';
 
     return repository.save(parametro);
   }
+
+  async findAllDeleted(ruc: string): Promise<ParametroSistema[]> {
+  const repository = await this.getRepository(ruc);
+  return repository.find({
+    where: {
+      indicadorEstado: 'E', // Solo registros eliminados
+    },
+    order: { idParametroSistema: 'ASC' },
+  });
+}
 }
