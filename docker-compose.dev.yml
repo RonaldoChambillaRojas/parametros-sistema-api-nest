@@ -5,49 +5,53 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nestjs_app
+    container_name: parametros_app
     restart: always
     ports:
-      - '3000:3000'
+      - '3001:3001'
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3001
       API_PREFIX: api
       DB_HOST: mysql
       DB_PORT: 3306
       DB_USERNAME: root
       DB_PASSWORD: root
-      DB_DATABASE: nestjs_starter
-      DB_SYNCHRONIZE: false
-      DB_LOGGING: true
+      DB_SYNCHRONIZE: 'false'
+      DB_LOGGING: 'true'
       CORS_ORIGIN: http://localhost:3000
+      TENANTS_ALLOWED: 10004438804,10005116452,10708535724,20519841704,20519883709
     depends_on:
       mysql:
         condition: service_healthy
     networks:
-      - nestjs_network
+      - parametros_network
 
   mysql:
     image: mysql:8.0
-    container_name: nestjs_mysql
+    container_name: parametros_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: nestjs_starter
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     ports:
-      - '3306:3306'
+      - '3307:3306'  # Expuesto en 3307 para no conflictuar con XAMPP
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database-setup.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - nestjs_network
+      - parametros_network
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot']
       timeout: 20s
       retries: 10
+      interval: 10s
 
 volumes:
   mysql_data:
+    name: parametros_mysql_data
 
 networks:
-  nestjs_network:
+  parametros_network:
+    name: parametros_network
     driver: bridge

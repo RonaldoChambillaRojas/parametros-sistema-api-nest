@@ -1,25 +1,31 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
-    container_name: nestjs_mysql
+    container_name: parametros_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: parametros_sistema_db
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     ports:
-      - '3306:3306'
+      - '3307:3306'  # Cambiado a 3307 para no conflictuar con XAMPP
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database-setup.sql:/docker-entrypoint-initdb.d/init.sql  # Auto-ejecutar script
     networks:
-      - nestjs_network
+      - parametros_network
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot']
       timeout: 20s
       retries: 10
+      interval: 10s
 
 volumes:
   mysql_data:
+    name: parametros_mysql_data
 
 networks:
-  nestjs_network:
+  parametros_network:
+    name: parametros_network
     driver: bridge
