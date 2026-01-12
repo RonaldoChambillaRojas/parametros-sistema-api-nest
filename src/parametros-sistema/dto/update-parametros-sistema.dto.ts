@@ -17,8 +17,8 @@ export class UpdateParametroSistemaDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['A', 'I'])
-  indicadorEstado?: 'A' | 'I';
+  @IsIn(['A', 'E'])
+  indicadorEstado?: 'A' | 'E';
 
   @IsString()
   @MinLength(1)

@@ -19,7 +19,7 @@ export class CreateParametroSistemaDto {
   @IsOptional()
   @IsString()
   @IsIn(['A', 'I'])
-  indicadorEstado?: 'A' | 'I';
+  indicadorEstado?: 'A' | 'E';
 
   @IsString()
   @MinLength(1)
