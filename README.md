@@ -1,3 +1,23 @@
+# 1. Iniciar MySQL en XAMPP
+# (Desde XAMPP Control Panel)
+
+# 2. Construir imagen Docker
+npm run docker:app:build
+
+# 3. Levantar aplicación
+npm run docker:app:start
+
+# 4. Ver logs
+npm run docker:app:logs
+
+# 5. Probar
+curl -H "RUC: 20519883709" http://localhost:3001/api/parametros-sistema
+
+# 6. Detener cuando termines
+npm run docker:app:stop
+
+
+
 ## 💡 Ejemplos de Uso
 
 ### Listar todos los parámetros
