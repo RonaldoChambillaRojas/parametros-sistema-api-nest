@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parametros_app
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      API_PREFIX: api
+      # host.docker.internal apunta al host (tu PC con XAMPP)
+      DB_HOST: host.docker.internal
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: ''
+      DB_SYNCHRONIZE: 'false'
+      DB_LOGGING: 'true'
+      CORS_ORIGIN: '*'
+      TENANTS_ALLOWED: '10004438804,10005116452,10708535724,20519841704,20519883709'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - parametros_network
+
+networks:
+  parametros_network:
+    name: parametros_network
+    driver: bridge
