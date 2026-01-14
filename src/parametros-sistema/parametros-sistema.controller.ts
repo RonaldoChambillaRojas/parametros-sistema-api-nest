@@ -47,6 +47,11 @@ export class ParametrosSistemaController {
     return this.parametrosSistemaService.findAllDeleted(ruc);
   }
 
+  @Get('health')
+  health() {
+    return { status: 'OK' };
+  }
+
   @Patch(':id')
   update(
     @TenantId() ruc: string,
