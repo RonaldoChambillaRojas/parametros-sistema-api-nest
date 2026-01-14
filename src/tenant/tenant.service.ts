@@ -1,7 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { ParametroSistema } from '../parametros-sistema/entities/parametros-sistema.entity';
+import { ParametroSistema } from 'src/parametros-sistema/entities/parametros-sistema.entity';
+import { EntidadSistema } from 'src/entidad-sistema/entities/entidad-sistema.entity';
+import { ElementoEntidad } from 'src/elemento-entidad/entities/elemento-entidad.entity';
 @Injectable()
 export class TenantService {
   private connections: Map<string, DataSource> = new Map();
@@ -53,7 +55,7 @@ export class TenantService {
       username: this.configService.get<string>('DB_USERNAME'),
       password: this.configService.get<string>('DB_PASSWORD'),
       database: ruc, // El nombre de la BD es el RUC
-      entities: [ParametroSistema],
+      entities: [ParametroSistema, ElementoEntidad, EntidadSistema], // Agregar nuevas entidades
       synchronize: false, // IMPORTANTE: siempre false en multi-tenant
       logging: this.configService.get<boolean>('DB_LOGGING'),
     };
@@ -63,10 +65,10 @@ export class TenantService {
     try {
       await dataSource.initialize();
       this.connections.set(ruc, dataSource);
-      console.log(`Conexión establecida con tenant: ${ruc}`);
+      console.log(`✅ Conexión establecida con tenant: ${ruc}`);
       return dataSource;
     } catch (error) {
-      console.error(`Error conectando al tenant ${ruc}:`, error.message);
+      console.error(`❌ Error conectando al tenant ${ruc}:`, error.message);
       throw new BadRequestException(
         `No se pudo conectar a la base de datos del RUC: ${ruc}`,
       );
