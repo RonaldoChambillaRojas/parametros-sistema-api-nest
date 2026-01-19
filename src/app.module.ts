@@ -5,6 +5,8 @@ import { TenantModule } from './tenant/tenant.module';
 import { ParametrosSistemaModule } from './parametros-sistema/parametros-sistema.module';
 import { ElementoEntidadModule } from './elemento-entidad/elemento-entidad.module';
 import { EntidadSistemaModule } from './entidad-sistema/entidad-sistema.module';
+import { TipoDocumentoModule } from './tipo-documento/tipo-documento.module';
+import { GrupoParametroModule } from './grupo-parametro/grupo-parametro.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { EntidadSistemaModule } from './entidad-sistema/entidad-sistema.module';
     ParametrosSistemaModule,
     ElementoEntidadModule,
     EntidadSistemaModule,
+    TipoDocumentoModule,
+    GrupoParametroModule,
   ],
 })
 export class AppModule {}
