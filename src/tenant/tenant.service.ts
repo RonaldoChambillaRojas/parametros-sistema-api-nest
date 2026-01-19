@@ -1,9 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { ParametroSistema } from 'src/parametros-sistema/entities/parametros-sistema.entity';
-import { EntidadSistema } from 'src/entidad-sistema/entities/entidad-sistema.entity';
-import { ElementoEntidad } from 'src/elemento-entidad/entities/elemento-entidad.entity';
+import { ParametroSistema } from '../parametros-sistema/entities/parametros-sistema.entity';
+import { ElementoEntidad } from '../elemento-entidad/entities/elemento-entidad.entity';
+import { EntidadSistema } from '../entidad-sistema/entities/entidad-sistema.entity';
+import { GrupoParametro } from '../grupo-parametro/entities/grupo-parametro.entity';
+
 @Injectable()
 export class TenantService {
   private connections: Map<string, DataSource> = new Map();
@@ -14,32 +16,21 @@ export class TenantService {
     this.allowedTenants = tenantsString.split(',').map((t) => t.trim());
   }
 
-  /**
-   * Verifica si un RUC es válido
-   */
   isValidTenant(ruc: string): boolean {
     return this.allowedTenants.includes(ruc);
   }
 
-  /**
-   * Obtiene la lista de tenants permitidos
-   */
   getAllowedTenants(): string[] {
     return this.allowedTenants;
   }
 
-  /**
-   * Obtiene o crea una conexión para el tenant específico
-   */
   async getTenantConnection(ruc: string): Promise<DataSource> {
-    // Validar que el RUC sea permitido
     if (!this.isValidTenant(ruc)) {
       throw new BadRequestException(
         `RUC "${ruc}" no válido. RUCs permitidos: ${this.allowedTenants.join(', ')}`,
       );
     }
 
-    // Si ya existe la conexión, retornarla
     if (this.connections.has(ruc)) {
       const connection = this.connections.get(ruc);
       if (connection && connection.isInitialized) {
@@ -47,16 +38,20 @@ export class TenantService {
       }
     }
 
-    // Crear nueva conexión
     const dataSourceOptions: DataSourceOptions = {
       type: 'mysql',
       host: this.configService.get<string>('DB_HOST'),
       port: this.configService.get<number>('DB_PORT'),
       username: this.configService.get<string>('DB_USERNAME'),
       password: this.configService.get<string>('DB_PASSWORD'),
-      database: ruc, // El nombre de la BD es el RUC
-      entities: [ParametroSistema, ElementoEntidad, EntidadSistema], // Agregar nuevas entidades
-      synchronize: false, // IMPORTANTE: siempre false en multi-tenant
+      database: ruc,
+      entities: [
+        ParametroSistema,
+        ElementoEntidad,
+        EntidadSistema,
+        GrupoParametro, // Agregar aquí
+      ],
+      synchronize: false,
       logging: this.configService.get<boolean>('DB_LOGGING'),
     };
 
@@ -75,9 +70,6 @@ export class TenantService {
     }
   }
 
-  /**
-   * Cierra todas las conexiones (útil para cleanup)
-   */
   async closeAllConnections(): Promise<void> {
     for (const [ruc, connection] of this.connections) {
       if (connection.isInitialized) {
