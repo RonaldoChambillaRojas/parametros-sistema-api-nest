@@ -5,6 +5,7 @@ import { ParametroSistema } from '../parametros-sistema/entities/parametros-sist
 import { ElementoEntidad } from '../elemento-entidad/entities/elemento-entidad.entity';
 import { EntidadSistema } from '../entidad-sistema/entities/entidad-sistema.entity';
 import { GrupoParametro } from '../grupo-parametro/entities/grupo-parametro.entity';
+import { HostSistema } from 'src/host-sistema/entities/host-sistema.entity';
 
 @Injectable()
 export class TenantService {
@@ -49,7 +50,8 @@ export class TenantService {
         ParametroSistema,
         ElementoEntidad,
         EntidadSistema,
-        GrupoParametro, // Agregar aquí
+        GrupoParametro,
+        HostSistema, // Agregar aquí
       ],
       synchronize: false,
       logging: this.configService.get<boolean>('DB_LOGGING'),
