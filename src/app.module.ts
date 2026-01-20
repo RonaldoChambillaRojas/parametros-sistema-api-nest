@@ -7,6 +7,7 @@ import { ElementoEntidadModule } from './elemento-entidad/elemento-entidad.modul
 import { EntidadSistemaModule } from './entidad-sistema/entidad-sistema.module';
 import { TipoDocumentoModule } from './tipo-documento/tipo-documento.module';
 import { GrupoParametroModule } from './grupo-parametro/grupo-parametro.module';
+import { HostSistemaModule } from './host-sistema/host-sistema.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GrupoParametroModule } from './grupo-parametro/grupo-parametro.module';
     EntidadSistemaModule,
     TipoDocumentoModule,
     GrupoParametroModule,
+    HostSistemaModule,
   ],
 })
 export class AppModule {}
